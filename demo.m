@@ -4,34 +4,52 @@ clear all;
 
 %% SET paths
 
-path = fileparts(mfilename('fullpath'));
-
-addpath(fullfile(path, 'voie_statique'));
-
-addpath(fullfile(path, 'voie_dynamique'));
-addpath(fullfile(path, 'mvt_dominant'));
-
-addpath(fullfile(path, 'voie_visage'));
-addpath(fullfile(path, 'voie_visage', 'bin'));
-
-addpath(fullfile(path, 'commun'));
-
-addpath(path);
-
 if( ~exist('data/output/static','dir')), mkdir('data/output/static'); end;
 if( ~exist('data/output/dynamic','dir')), mkdir('data/output/dynamic'); end;
 if( ~exist('data/output/face','dir')), mkdir('data/output/face'); end;
 if( ~exist('data/output/fusion','dir')), mkdir('data/output/fusion'); end;
 
-%% COMPILE mex functions
+path = fileparts(mfilename('fullpath'));
+
+addpath(fullfile(path, 'voie_statique'));
+addpath(fullfile(path, 'voie_dynamique'));
+addpath(fullfile(path, 'voie_visage'));
+addpath(fullfile(path, 'voie_visage', 'bin'));
+addpath(fullfile(path, 'mvt_dominant'));
+addpath(fullfile(path, 'commun'));
+
+if strcmp(mexext,'mexw32'),
+    addpath(fullfile(path, 'voie_visage', 'bin', 'win32'));
+elseif strcmp(mexext,'mexw64'),
+    addpath(fullfile(path, 'voie_visage', 'bin', 'win64'));
+end
+
+addpath(path);
 
 disp('COMPILE mex functions.');
 
-if( ~exist('voie_visage/bin/FaceDetect','file')),
-    mex voie_visage/src/FaceDetect.cpp -Ivoie_visage/inc/ voie_visage/lib/*.lib -outdir voie_visage/bin/
-end;
-if( ~exist('voie_visage/bin/FaceDetectStrict','file')),
-    mex voie_visage/src/FaceDetectStrict.cpp -Ivoie_visage/inc/ voie_visage/lib/*.lib -outdir voie_visage/bin/
+if strcmp(mexext,'mexw32'),
+
+    %% COMPILE mex functions
+    
+    if( ~exist('voie_visage/bin/FaceDetect','file')),
+        mex voie_visage/src/FaceDetect.cpp -Ivoie_visage/inc/ voie_visage/lib/lib32/*.lib -outdir voie_visage/bin/win32/
+    end;
+    if( ~exist('voie_visage/bin/FaceDetectStrict','file')),
+        mex voie_visage/src/FaceDetectStrict.cpp -Ivoie_visage/inc/ voie_visage/lib/lib32/*.lib -outdir voie_visage/bin/win32/
+    end;
+    
+elseif strcmp(mexext,'mexw64'),
+    
+    %% COMPILE mex functions
+    
+    if( ~exist('voie_visage/bin/FaceDetect','file')),
+        mex voie_visage/src/FaceDetect.cpp -Ivoie_visage/inc/ voie_visage/lib/lib64/*.lib -outdir voie_visage/bin/win64/
+    end;
+    if( ~exist('voie_visage/bin/FaceDetectStrict','file')),
+        mex voie_visage/src/FaceDetectStrict.cpp -Ivoie_visage/inc/ voie_visage/lib/lib64/*.lib -outdir voie_visage/bin/win64/
+    end;
+    
 end;
 
 %% SET IO variables
